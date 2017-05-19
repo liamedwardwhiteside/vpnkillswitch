@@ -1,0 +1,16 @@
+#!/bin/bash
+
+VPN_USERNAME="YOUR_VPN_USERNAME"
+VPN_PASSWORD="YOUR_VPN_PASSWORD"
+
+# connect to OpenVPN
+shred -uvzn 34 /tmp/auth.secret 2>/dev/null
+echo $VPN_USERNAME > /tmp/auth.secret
+echo -n $VPN_PASSWORD >> /tmp/auth.secret
+chown root:root /tmp/auth.secret
+chmod ugo-rwx /tmp/auth.secret
+chmod u+r /tmp/auth.secret
+unset VPN_USERNAME
+unset VPN_PASSWORD
+openvpn --cd /etc/openvpn --daemon ovpn-daemon --config /etc/openvpn/nyc.conf --auth-user-pass /tmp/auth.secret --writepid /var/run/openvpn-custom.pid --log /var/log/openvpn-custom.log
+shred -uvzn 34 /tmp/auth.secret

@@ -1,0 +1,14 @@
+# interfaces(5) file used by ifup(8) and ifdown(8)
+auto lo
+iface lo inet loopback
+
+auto enp5s0
+iface enp5s0 inet static
+	pre-up /usr/sbin/vpnkillswitch-pre-up
+	post-up /usr/sbin/vpnkillswitch-post-up
+	post-down /usr/sbin/stop-openvpn-noifdown
+	address 192.168.1.2
+	netmask 255.255.255.0
+	gateway 192.168.1.1
+	dns-nameservers 209.222.18.222 209.222.18.218
+	

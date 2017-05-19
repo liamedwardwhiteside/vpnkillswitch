@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# take down your interfaces upon stopping the openvpn service to prevent leaking anything, especially anything unencrypted (even if you're using a trusted DNS server!)
+/sbin/ifdown enp5s0
+# examples
+#/sbin/ifdown wlan0 # wireless
+# etc.
+/usr/bin/pkill -F /var/run/openvpn-custom.pid

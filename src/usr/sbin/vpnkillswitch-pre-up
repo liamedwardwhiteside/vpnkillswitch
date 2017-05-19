@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# important variables:
+VPN_PORT="1198" # What port does your VPN use? (e.g. 1194) PIA uses 1198 by default.
+VPN_IFACE="tun0"
+DNS1="209.222.18.222"
+DNS2="209.222.18.218"
+
+# overwrite /etc/resolv.conf
+echo "nameserver $DNS1" > /etc/resolv.conf
+echo -n "nameserver $DNS2" >> /etc/resolv.conf
+
+# disable ufw
+ufw disable
+
+# reset ufw settings
+ufw --force reset
+
+# set default behaviour of and enable ufw
+ufw default deny incoming
+ufw default deny outgoing
+ufw enable
+
+/usr/sbin/stop-openvpn-noifdown # stop openvpn if it's running
+
+# only allow SSH outbound and HTTP inbound+outbound
+ufw allow out to 192.168.1.0/24
+ufw allow in from 192.168.1.0/24
+
+# allow vpn connection to be established
+ufw allow out on $VPN_IFACE to any port $VPN_PORT
+ufw allow in on $VPN_IFACE from any port $VPN_PORT
+ufw allow out on $IFACE to any port $VPN_PORT
+ufw allow in on $IFACE from any port $VPN_PORT
+
+# allow only PIA DNS IPs on ports 53
+
+	#inbound
+ufw allow in on $VPN_IFACE from $DNS1 to any port 53
+ufw allow in on $VPN_IFACE from $DNS2 to any port 53
+ufw allow in on $IFACE from $DNS1 to any port 53
+ufw allow in on $IFACE from $DNS2 to any port 53
+
+	#inbound 5353
+#ufw allow in on $VPN_IFACE from $DNS1 to any port 5353
+#ufw allow in on $VPN_IFACE from $DNS2 to any port 5353
+#ufw allow in on $IFACE from $DNS1 to any port 5353
+#ufw allow in on $IFACE from $DNS2 to any port 5353
+
+
+	#outbound
+ufw allow out on $VPN_IFACE from any to $DNS1 port 53
+ufw allow out on $VPN_IFACE from any to $DNS2 port 53
+ufw allow out on $IFACE from any to $DNS1 port 53
+ufw allow out on $IFACE from any to $DNS2 port 53
+
+	#outbound 5353
+#ufw allow out on $VPN_IFACE from any to $DNS1 port 5353
+#ufw allow out on $VPN_IFACE from any to $DNS2 port 5353
+#ufw allow out on $IFACE from any to $DNS1 port 5353
+#ufw allow out on $IFACE from any to $DNS2 port 5353
+
+# allow all traffic over VPN interface
+ufw allow in on $VPN_IFACE from any to any
+ufw allow out on $VPN_IFACE from any to any

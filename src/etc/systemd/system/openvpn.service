@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenVPN Connection
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/start-openvpn
+ExecReload=/usr/sbin/reload-openvpn
+# DO NOT STOP AND START THIS PROCESS FROM THE ifup SCRIPTS; just restart it! You have been warned.
+ExecStop=/usr/sbin/stop-openvpn
+WorkingDirectory=/etc/openvpn
+
+[Install]
+WantedBy=multi-user.target

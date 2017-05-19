@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# start openvpn (stopped in pre-up)
+/usr/sbin/start-openvpn
+
+# source: http://whrl.pl/ReHBp0
+vpnServers="us-newyorkcity.privateinternetaccess.com"
+# or:
+#vpnServers="us-newyorkcity.privateinternetaccess.com
+# aus.privateinternetaccess.com"
+# (e.g. one per line)
+for vpnServer in $vpnServers
+do
+	#ipList=$(nslookup $vpnServer | grep -Eo 'Address: (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
+	# I prefer dig, if it's installed:
+	ipList=$(dig +short $vpnServer A)
+	#echo $ipList
+	for ip in $ipList
+	do
+		ufw allow in from $ip to any
+	done
+done
